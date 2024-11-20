@@ -60,4 +60,9 @@ export class CatalogController {
     const clientId = req.user.clientId;
     return await this.catalogService.bulkDeleteCatalogs(ids, clientId);
   }
+  @Post('index-all')
+  async indexAllCatalogs(): Promise<string> {
+    await this.catalogService.indexAllCatalogs();
+    return 'All catalogs have been indexed successfully';
+  }
 }

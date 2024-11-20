@@ -148,7 +148,15 @@ export class CatalogService {
       throw new InternalServerErrorException('Failed to delete catalogs');
     }
   }
+  async indexAllCatalogs(): Promise<void> {
+    const currentTimestamp = new Date();
 
+    await this.catalogRepository
+      .createQueryBuilder()
+      .update(Catalog)
+      .set({ indexedAt: currentTimestamp })
+      .execute();
+  }
   // Helper method to update existing primary catalog
   private async updateExistingPrimary(
     vertical: string,
