@@ -8,13 +8,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import {
-  IsBoolean,
-  IsEnum,
-  IsString,
-  Length,
-  ArrayNotEmpty,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsString, Length } from 'class-validator';
 import { Client } from '../client/client.entity';
 
 export enum VerticalType {
@@ -41,8 +35,7 @@ export class Catalog {
   @IsBoolean()
   primary: boolean;
 
-  @Column('simple-array')
-  @ArrayNotEmpty()
+  @Column('json') 
   locales: string[];
 
   @Column({ type: 'timestamp', nullable: true })

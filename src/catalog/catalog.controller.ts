@@ -8,6 +8,7 @@ import {
   Body,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { CatalogService } from './catalog.service';
 import { Catalog } from './catalog.entity';
@@ -25,12 +26,6 @@ export class CatalogController {
   ): Promise<Catalog> {
     const clientId = req.user.clientId;
     return await this.catalogService.createCatalog(data, clientId);
-  }
-
-  @Get()
-  async getCatalogs(@Request() req): Promise<Catalog[]> {
-    const clientId = req.user.clientId;
-    return await this.catalogService.getCatalogs(clientId);
   }
 
   @Put(':id')
@@ -64,5 +59,12 @@ export class CatalogController {
   async indexAllCatalogs(): Promise<string> {
     await this.catalogService.indexAllCatalogs();
     return 'All catalogs have been indexed successfully';
+  }
+  @Get()
+  async getCatalogs(
+    @Query('name') name?: string,
+    @Query('multiLocale') multiLocale?: boolean,
+  ): Promise<Catalog[]> {
+    return this.catalogService.getFilteredCatalogs(name, multiLocale);
   }
 }

@@ -49,20 +49,24 @@ export class CatalogService {
     }
   }
 
-  // Get all catalogs for a client
-  async getCatalogs(clientId: number): Promise<Catalog[]> {
-    try {
-      const catalogs = await this.catalogRepository.find({
-        where: { client: { id: clientId } },
-        relations: ['client'],
-      });
-      return catalogs;
-    } catch (error) {
-      this.logger.error('Error retrieving catalogs', error.stack);
-      throw new InternalServerErrorException('Failed to retrieve catalogs');
+  async getFilteredCatalogs(
+    name?: string,
+    multiLocale?: boolean,
+  ): Promise<Catalog[]> {
+    const query = this.catalogRepository.createQueryBuilder('catalog');
+    // Filter by name if provided
+    if (name) {
+      query.andWhere('catalog.name LIKE :name', { name: `%${name}%` });
     }
-  }
+    // Filter by multiLocale if provided
+    if (multiLocale !== undefined) {
+      query.andWhere('JSON_LENGTH(catalog.locales) > 1 = :multiLocale', {
+        multiLocale,
+      });
+    }
 
+    return query.getMany();
+  }
   // Update a catalog
   async updateCatalog(
     id: number,
@@ -157,13 +161,13 @@ export class CatalogService {
       .set({ indexedAt: currentTimestamp })
       .execute();
   }
+
   // Helper method to update existing primary catalog
   private async updateExistingPrimary(
     vertical: string,
     clientId: number,
   ): Promise<void> {
     try {
-      console.log({ vertical });
       await this.catalogRepository.update(
         {
           vertical: vertical as VerticalType,
