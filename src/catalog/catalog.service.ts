@@ -75,11 +75,18 @@ export class CatalogService {
     if (!catalog) throw new NotFoundException('Catalog not found');
 
     try {
-      if (data.primary && !catalog.primary) {
-        await this.updateExistingPrimary(catalog.vertical, clientId);
+      // Check if catalog is being set as primary or if vertical is changing
+      if (
+        (data.primary && !catalog.primary) || // Catalog is being set as primary
+        (data.primary && data.vertical && data.vertical !== catalog.vertical) // Vertical is changing
+      ) {
+        await this.updateExistingPrimary(
+          data.vertical || catalog.vertical,
+          clientId,
+        );
       }
-
       Object.assign(catalog, data);
+      catalog.indexedAt = new Date();
       return await this.catalogRepository.save(catalog);
     } catch (error) {
       this.logger.error(`Error updating catalog with ID ${id}`, error.stack);
@@ -148,6 +155,7 @@ export class CatalogService {
     clientId: number,
   ): Promise<void> {
     try {
+      console.log({ vertical });
       await this.catalogRepository.update(
         {
           vertical: vertical as VerticalType,

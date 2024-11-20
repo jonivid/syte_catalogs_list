@@ -53,7 +53,7 @@ export class AuthService {
     };
     const response: LoginResponseDto = {
       username: user.username,
-      accessToken: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload, { expiresIn: '8h' }),
     };
     return response;
   }
