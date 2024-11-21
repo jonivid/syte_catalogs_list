@@ -19,6 +19,14 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class CatalogController {
   constructor(private readonly catalogService: CatalogService) {}
 
+  @Get()
+  async getCatalogs(
+    @Query('name') name?: string,
+    @Query('multiLocale') multiLocale?: boolean,
+  ): Promise<Catalog[]> {
+    return this.catalogService.getFilteredCatalogs(name, multiLocale);
+  }
+
   @Post()
   async createCatalog(
     @Body() data: Partial<Catalog>,
@@ -55,16 +63,20 @@ export class CatalogController {
     const clientId = req.user.clientId;
     return await this.catalogService.bulkDeleteCatalogs(ids, clientId);
   }
-  @Post('index-all')
+  @Post('index_all')
   async indexAllCatalogs(): Promise<string> {
     await this.catalogService.indexAllCatalogs();
     return 'All catalogs have been indexed successfully';
   }
-  @Get()
-  async getCatalogs(
-    @Query('name') name?: string,
-    @Query('multiLocale') multiLocale?: boolean,
-  ): Promise<Catalog[]> {
-    return this.catalogService.getFilteredCatalogs(name, multiLocale);
+  @Post('index_selected')
+  async indexSelectedCatalogs(
+    @Body('ids') ids: number[],
+    @Request() req,
+  ): Promise<{
+    message: string;
+    indexedCatalogs: { id: number; indexedAt: Date }[];
+  }> {
+    const clientId = req.user.clientId;
+    return await this.catalogService.indexSelectedCatalogs(ids, clientId);
   }
 }

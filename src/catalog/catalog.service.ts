@@ -162,6 +162,53 @@ export class CatalogService {
       .execute();
   }
 
+  async indexSelectedCatalogs(
+    ids: number[],
+    clientId: number,
+  ): Promise<{
+    message: string;
+    indexedCatalogs: { id: number; indexedAt: Date }[];
+  }> {
+    if (!ids || ids.length === 0) {
+      throw new BadRequestException('No IDs provided for indexing');
+    }
+
+    try {
+      const catalogs = await this.catalogRepository.find({
+        where: { id: In(ids), client: { id: clientId } },
+      });
+      if (catalogs.length === 0) {
+        throw new NotFoundException('No catalogs found for the provided IDs');
+      }
+      const currentTimestamp = new Date();
+      await this.catalogRepository
+        .createQueryBuilder()
+        .update(Catalog)
+        .set({ indexedAt: currentTimestamp })
+        .where('id IN (:...ids)', { ids })
+        .andWhere('client.id = :clientId', { clientId })
+        .execute();
+
+      this.logger.log(
+        `Indexed ${catalogs.length} catalogs for client ${clientId}`,
+      );
+
+      // Prepare the response with updated timestamps
+      const indexedCatalogs = catalogs.map((catalog) => ({
+        id: catalog.id,
+        indexedAt: currentTimestamp,
+      }));
+
+      return {
+        message: 'Catalogs indexed successfully',
+        indexedCatalogs,
+      };
+    } catch (error) {
+      this.logger.error('Error during catalog indexing', error.stack);
+      throw new InternalServerErrorException('Failed to index catalogs');
+    }
+  }
+
   // Helper method to update existing primary catalog
   private async updateExistingPrimary(
     vertical: string,
