@@ -6,6 +6,7 @@ import { User } from './auth/user.entity';
 import { Client } from './client/client.entity';
 import { Catalog } from './catalog/catalog.entity';
 import { CatalogModule } from './catalog/catalog.module';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { CatalogModule } from './catalog/catalog.module';
     // Import the Auth module
     AuthModule,
     CatalogModule,
+    SeederModule,
   ],
 })
 export class AppModule {}
