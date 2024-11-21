@@ -7,9 +7,11 @@ import { Client } from './client/client.entity';
 import { Catalog } from './catalog/catalog.entity';
 import { CatalogModule } from './catalog/catalog.module';
 import { SeederModule } from './seeder/seeder.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     // Load environment variables globally
     ConfigModule.forRoot({
       isGlobal: true,
@@ -29,7 +31,7 @@ import { SeederModule } from './seeder/seeder.module';
         entities: [User, Client, Catalog], // Include your entities here
         synchronize: configService.get<boolean>('DB_SYNC') || true, // Use synchronize only in development
         autoLoadEntities: true, // Automatically load entities
-        logging: false, // Enable / Disable logging for debugging 
+        logging: false, // Enable / Disable logging for debugging
       }),
     }),
     // Import the Auth module

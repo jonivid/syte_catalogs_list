@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Catalog, VerticalType } from './catalog.entity';
 import { Client } from '../client/client.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class CatalogService {
@@ -152,9 +153,18 @@ export class CatalogService {
       throw new InternalServerErrorException('Failed to delete catalogs');
     }
   }
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async handleIndexing(): Promise<void> {
+    try {
+      await this.indexAllCatalogs();
+      console.log('Catalogs indexed successfully at', new Date());
+    } catch (error) {
+      console.error('Error during indexing process:', error);
+    }
+  }
+
   async indexAllCatalogs(): Promise<void> {
     const currentTimestamp = new Date();
-
     await this.catalogRepository
       .createQueryBuilder()
       .update(Catalog)
