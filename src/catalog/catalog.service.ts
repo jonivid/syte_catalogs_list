@@ -53,7 +53,9 @@ export class CatalogService {
   async getFilteredCatalogs(
     name?: string,
     multiLocale?: boolean,
-  ): Promise<Catalog[]> {
+    page: number = 1,
+    rowsPerPage: number = 10,
+  ): Promise<{ data: Catalog[]; total: number }> {
     const query = this.catalogRepository.createQueryBuilder('catalog');
     // Filter by name if provided
     if (name) {
@@ -65,8 +67,14 @@ export class CatalogService {
         multiLocale,
       });
     }
+    query.orderBy('catalog.createdAt', 'DESC');
+    const total = await query.getCount();
+    const data = await query
+      .skip((page - 1) * rowsPerPage)
+      .take(rowsPerPage)
+      .getMany();
 
-    return query.getMany();
+    return { data, total };
   }
   // Update a catalog
   async updateCatalog(

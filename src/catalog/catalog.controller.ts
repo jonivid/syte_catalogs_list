@@ -23,8 +23,15 @@ export class CatalogController {
   async getCatalogs(
     @Query('name') name?: string,
     @Query('multiLocale') multiLocale?: boolean,
-  ): Promise<Catalog[]> {
-    return this.catalogService.getFilteredCatalogs(name, multiLocale);
+    @Query('page') page = 1,
+    @Query('rowsPerPage') rowsPerPage = 10,
+  ): Promise<{ data: Catalog[]; total: number }> {
+    return this.catalogService.getFilteredCatalogs(
+      name,
+      multiLocale,
+      page,
+      rowsPerPage,
+    );
   }
 
   @Post()
