@@ -83,20 +83,38 @@ Represents an authenticated user with access to the system.
 ## Directory Structure
 
 ```plaintext
-├── syte_catalogs_list_backend/
-│   ├── src/
-│   │   ├── auth/                # Authentication module
-│   │   ├── catalog/             # Catalog module with services and controllers
-│   │   ├── client/              # Client module
-│   │   ├── seeder/              # Database seeder
-│   │   ├── app.module.ts        # Main module
-│   │   └── main.ts              # Application entry point
-│   ├── test/                    # Test cases
-│   ├── wait-for-it.sh           # MySQL readiness script
-├── syte_catalogs_list_frontend/ # Frontend folder
-├── Dockerfile                   # Dockerfile for the backend service
-├── docker-compose.yml           # Docker Compose file
-├── .env 
+syte_catalogs_list_backend/
+├── src/                           # Source code
+│   ├── auth/                      # Authentication module
+│   │   ├── auth.controller.ts      # Authentication controller
+│   │   ├── auth.module.ts          # Authentication module definition
+│   │   ├── auth.service.ts         # Authentication service
+│   │   ├── dto/                    # Data transfer objects for auth
+│   │   │   ├── login.dto.ts         # DTO for login payload
+│   │   ├── jwt-auth.guard.ts       # Guard for JWT-based authentication
+│   │   ├── jwt.strategy.ts         # JWT strategy for authentication
+│   │   ├── user.entity.ts          # User entity definition
+│   ├── catalog/                   # Catalog management module
+│   │   ├── catalog.controller.ts   # Catalog controller
+│   │   ├── catalog.entity.ts       # Catalog entity definition
+│   │   ├── catalog.module.ts       # Catalog module definition
+│   │   ├── catalog.service.ts      # Catalog service
+│   ├── client/                    # Client entity
+│   │   ├── client.entity.ts        # Client entity definition
+│   ├── interceptors/              # Global interceptors
+│   │   ├── logging.interceptor.ts  # Logging interceptor for requests
+│   ├── seeder/                    # Database seeding utilities
+│   │   ├── run-seeder.ts           # Script to run database seeding
+│   │   ├── seeder.module.ts        # Seeder module definition
+│   │   ├── seeder.service.ts       # Seeder service
+│   ├── app.controller.ts          # Main application controller
+│   ├── app.module.ts              # Root application module
+│   ├── app.service.ts             # Main application service
+│   ├── main.ts                    # Application entry point
+├── Dockerfile                     # Docker configuration
+├── README.md                      # Project documentation
+├── wait-for-it.sh                 # Script for Docker container dependency management
+├── .env                           # Environment variables
 ```
 
 ---
@@ -111,17 +129,22 @@ Represents an authenticated user with access to the system.
 
 ### Environment Variables
 
-Create a `.env` file in the root folder containig `syte_catalogs_list_backend` with the following content:
+Create a `.env` file in the root folder containing `syte_catalogs_list_backend` with the following content:
 
 ```plaintext
-DB_HOST=mysql
-DB_PORT=3306
-DB_USERNAME=user
-DB_PASSWORD=1234
-DB_NAME=syte_db
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRATION=1h
-PORT=8001
+# Database Service Configuration
+DB_HOST=mysql                    # Hostname for the MySQL service (Docker container name)
+DB_PORT=3306                     # Port exposed by the MySQL container
+DB_USERNAME=root                 # Root username for MySQL
+DB_PASSWORD=example_password      # Root password for MySQL
+DB_NAME=syte_db                  # Name of the database to create
+
+# Backend Service Configuration
+PORT=8001                # Port for the backend application
+JWT_SECRET=your_docker_jwt_secret # Secret key for signing JWT tokens
+JWT_EXPIRATION=1h                # Expiration time for JWT tokens (e.g., 1 hour)
+VITE_API_URL=http://localhost:8001 # Backend API URL for the frontend application
+
 ```
 
 ---
@@ -340,29 +363,24 @@ Follow these steps to set up the backend for local development:
 3. **Create Environment Variables File**  
    Create a `.env` file inside the `syte_catalogs_list_backend` directory with the following content:
 
-   ```plaintext
-   # Database Configuration
-   DB_HOST=localhost
-   DB_PORT=3307
-   DB_USERNAME=<fill your data>
-   DB_PASSWORD=<fill your data>
-   DB_NAME=<fill your data>
+```plaintext
+ # Database Configuration
+DB_HOST=mysql                    # Hostname for the database (e.g., MySQL server)
+DB_PORT=3306                     # Port number for the database (default for MySQL: 3306)
+DB_USERNAME=user                 # Username for database authentication
+DB_PASSWORD=1234                 # Password for database authentication
+DB_NAME=syte_db                  # Name of the database to connect to
 
-   # JWT Configuration
-   JWT_SECRET=<fill your data>
-   JWT_EXPIRATION=1h
+# JWT Configuration
+JWT_SECRET=your_jwt_secret       # Secret key for signing JWT tokens
+JWT_EXPIRATION=1h                # Expiration time for JWT tokens (e.g., 1h for 1 hour)
 
-   # Application Port
-   PORT=8001
-   ```
+# Application Configuration
+PORT=8001                        # Port for the backend application to run on
+```
 
-4. **Start Services with Docker Compose**  
-   From the root directory (where the `docker-compose.yml` file is located), build and start the services:
-   ```bash
-   docker-compose up --build
-   ```
 
-5. **Access the Backend**  
+4. **Access the Backend**  
    Once the services are running, the backend API will be accessible at:  
    ```plaintext
    http://localhost:8001
