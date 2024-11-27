@@ -21,12 +21,15 @@ export class CatalogController {
 
   @Get()
   async getCatalogs(
+    @Request() req,
     @Query('name') name?: string,
     @Query('multiLocale') multiLocale?: boolean,
     @Query('page') page = 1,
     @Query('rowsPerPage') rowsPerPage = 10,
   ): Promise<{ data: Catalog[]; total: number }> {
+    const clientId = req.user.clientId;
     return this.catalogService.getFilteredCatalogs(
+      clientId,
       name,
       multiLocale,
       page,

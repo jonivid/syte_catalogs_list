@@ -51,6 +51,7 @@ export class CatalogService {
   }
 
   async getFilteredCatalogs(
+    clientId: number,
     name?: string,
     multiLocale?: boolean,
     page: number = 1,
@@ -66,6 +67,9 @@ export class CatalogService {
       query.andWhere('JSON_LENGTH(catalog.locales) > 1 = :multiLocale', {
         multiLocale,
       });
+    }
+    if (clientId) {
+      query.andWhere('catalog.clientId = :clientId', { clientId });
     }
     query.orderBy('catalog.createdAt', 'DESC');
     const total = await query.getCount();
